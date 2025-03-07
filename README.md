@@ -1,4 +1,4 @@
-# UI Builder (RAG)
+# UI Wizard
 
 A modern web application that uses AI to convert natural language descriptions into clean, semantic HTML/CSS/JS code. Built with React, TypeScript, and OpenAI's GPT-4.
 
@@ -54,8 +54,7 @@ A modern web application that uses AI to convert natural language descriptions i
    - Copy `.env.example` to `.env`
    - Add your OpenAI API key to `.env`:
      ```
-     VITE_OPENAI_API_KEY=your-api-key-here
-     VITE_API_URL=http://localhost:3000
+     OPENAI_API_KEY=your-api-key-here
      ```
 
 4. Start the development server:
