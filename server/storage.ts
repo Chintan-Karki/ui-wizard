@@ -3,6 +3,7 @@ import { messages, type Message, type InsertMessage } from "@shared/schema";
 export interface IStorage {
   getMessages(): Promise<Message[]>;
   addMessage(message: InsertMessage): Promise<Message>;
+  clearMessages(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -27,6 +28,17 @@ export class MemStorage implements IStorage {
     };
     this.messages.set(id, message);
     return message;
+  }
+
+  async clearMessages(): Promise<void> {
+    try {
+      // Clear all messages from storage
+      this.messages = new Map();
+      return;
+    } catch (error) {
+      console.error("Failed to clear messages:", error);
+      throw new Error("Failed to clear messages");
+    }
   }
 }
 
