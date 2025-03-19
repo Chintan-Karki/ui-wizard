@@ -2,6 +2,7 @@ import { Message } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import MessageDisplay from "./ui/message-display";
 
 interface MessageRendererProps {
   message: Message;
@@ -15,11 +16,35 @@ interface FailedMessageProps {
   isRetrying: boolean;
 }
 
+// Helper function to parse complex JSON string with LaTeX-style formatting
+function parseComplexJsonString(str: string) {
+  try {
+    // First, parse the outer JSON string to get the actual content
+    const unescaped = JSON.parse(str);
+    
+    // Check if it's already a valid JSON object
+    if (typeof unescaped === 'object') return unescaped;
+    
+    // Try to extract the JSON from LaTeX-style boxed format
+    const boxedMatch = unescaped.match(/\\boxed{\n([\s\S]*?)}/);
+    if (boxedMatch) {
+      // Parse the content inside the box
+      return JSON.parse(boxedMatch[1]);
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error parsing complex JSON:", error);
+    return null;
+  }
+}
+
 export function MessageRenderer({ message, onSelectHtml }: MessageRendererProps) {
+
   const isAssistant = message.role === "assistant";
   if (isAssistant && message.content) {
+    const generated = JSON.parse(message.content);
     try {
-      const generated = JSON.parse(message.content);
       return (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -27,7 +52,7 @@ export function MessageRenderer({ message, onSelectHtml }: MessageRendererProps)
               <TooltipTrigger>
                 <Button 
                   variant="outline" 
-                  onClick={() => onSelectHtml(message.generatedHtml || null)}
+                  onClick={() => onSelectHtml(generated.html || null)}
                   className="flex-shrink-0"
                 >
                   Preview Generated UI
@@ -39,7 +64,11 @@ export function MessageRenderer({ message, onSelectHtml }: MessageRendererProps)
             </Tooltip>
           </div>
           <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
-            <code>{message.generatedHtml}</code>
+            {/* <code>{generated.html}</code> */}
+            
+            {/* <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: generated.html }} /> */}
+
+            <MessageDisplay message={message} />
           </pre>
         </div>
       );
