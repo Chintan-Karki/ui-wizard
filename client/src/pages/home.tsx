@@ -4,13 +4,23 @@ import PreviewPane from "@/components/preview-pane";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+interface generatedCode {
+  html: string | null;
+  css: string | null;
+  javascript: string | null;
+}
 export default function Home() {
-  const [selectedHtml, setSelectedHtml] = useState<string | null>(null);
+  const [selectedHtmlCssJS, setSelectedHtmlCssJs] = useState<generatedCode>({
+    html: null,
+    css: null,
+    javascript: null
+  });
+
   const [showPreview, setShowPreview] = useState<boolean>(false);
 
   // Function to handle preview button click
-  const handlePreview = (html: string | null) => {
-    setSelectedHtml(html);
+  const handlePreview = (html: string | null, css: string | null, javascript: string | null) => {
+    setSelectedHtmlCssJs({ html, css, javascript });
     setShowPreview(true);
   };
 
@@ -36,7 +46,9 @@ export default function Home() {
           {showPreview && (
             <Card className="p-4">
               <PreviewPane 
-                html={selectedHtml} 
+                html={selectedHtmlCssJS.html} 
+                css={selectedHtmlCssJS.css}
+                javascript={selectedHtmlCssJS.javascript}
                 onClose={() => setShowPreview(false)} 
               />
             </Card>
