@@ -1,6 +1,10 @@
 # UI Wizard
 
+> 🚧 **Work in Progress**: This project is currently under active development. Features and documentation may change frequently.
+
 A modern web application that uses AI to convert natural language descriptions into clean, semantic HTML/CSS/JS code. Built with React, TypeScript, and OpenAI's GPT-4.
+
+![UI Wizard Demo](demo/demo.gif)
 
 ## Features
 
