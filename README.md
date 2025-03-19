@@ -35,7 +35,7 @@ A modern web application that uses AI to convert natural language descriptions i
 
 - Node.js (v18 or higher)
 - npm or yarn
-- OpenAI API key
+- OpenAI API key and endpoint URL
 
 ### Installation
 
@@ -52,9 +52,19 @@ A modern web application that uses AI to convert natural language descriptions i
 
 3. Set up environment variables:
    - Copy `.env.example` to `.env`
-   - Add your OpenAI API key to `.env`:
-     ```
-     OPENAI_API_KEY=your-api-key-here
+   - Configure the following environment variables:
+     ```env
+     # Environment
+     NODE_ENV='development'  # or 'production'
+
+     # Site Configuration
+     VITE_SITE_URL=''       # Your site URL
+     VITE_SITE_NAME=''      # Your site name
+
+     # OpenAI Configuration
+     VITE_OPENAI_API_KEY=your-openai-api-key
+     VITE_LLM_URL=your-openai-LLM-url-key
+     VITE_LLM_MODEL=your-openai-model-name  # e.g. gpt-3.5-turbo
      ```
 
 4. Start the development server:
