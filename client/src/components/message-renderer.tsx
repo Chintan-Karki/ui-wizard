@@ -6,7 +6,7 @@ import MessageDisplay from "./ui/message-display";
 
 interface MessageRendererProps {
   message: Message;
-  onSelectHtml: (html: string | null) => void;
+  onSelectHtml: (html: string | null, css: string | null, javascript: string | null) => void;
 }
 
 interface FailedMessageProps {
@@ -40,7 +40,6 @@ function parseComplexJsonString(str: string) {
 }
 
 export function MessageRenderer({ message, onSelectHtml }: MessageRendererProps) {
-
   const isAssistant = message.role === "assistant";
   if (isAssistant && message.content) {
     const generated = JSON.parse(message.content);
@@ -52,7 +51,11 @@ export function MessageRenderer({ message, onSelectHtml }: MessageRendererProps)
               <TooltipTrigger>
                 <Button 
                   variant="outline" 
-                  onClick={() => onSelectHtml(generated.html || null)}
+                  onClick={() => onSelectHtml(
+                    generated.html || null, 
+                    generated.css || null, 
+                    generated.javascript || null
+                  )}
                   className="flex-shrink-0"
                 >
                   Preview Generated UI

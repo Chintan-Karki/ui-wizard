@@ -7,7 +7,7 @@ import { MessageInput } from "./message-input";
 import { Message } from "@shared/schema";
 
 interface ChatInterfaceProps {
-  onSelectHtml: (html: string | null) => void;
+  onSelectHtml: (html: string | null, css: string | null, javascript: string | null) => void;
 }
 
 export default function ChatInterface({ onSelectHtml }: ChatInterfaceProps) {
