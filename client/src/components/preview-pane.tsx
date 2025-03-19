@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, X, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PreviewModal from "./preview-modal";
+import { Highlight, themes } from "prism-react-renderer";
 
 interface PreviewPaneProps {
   html: string | null;
@@ -11,6 +12,30 @@ interface PreviewPaneProps {
   javascript: string | null;
   onClose: () => void;
 }
+
+const renderCode = (code: string | null, language: string) => {
+  if (!code) return null;
+  return (
+    <Highlight theme={themes.github} code={code} language={language}>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <pre className="h-full overflow-auto bg-muted p-4 rounded-lg" style={style}>
+          {tokens.map((line, i) => (
+            <div key={i} {...getLineProps({ line })} className="table-row">
+              <span className="table-cell text-right pr-4 text-gray-500 select-none w-[3rem]">
+                {i + 1}
+              </span>
+              <span className="table-cell">
+                {line.map((token, key) => (
+                  <span key={key} {...getTokenProps({ token })} />
+                ))}
+              </span>
+            </div>
+          ))}
+        </pre>
+      )}
+    </Highlight>
+  );
+};
 
 export default function PreviewPane({ html, css, javascript, onClose }: PreviewPaneProps) {
   const [activeTab, setActiveTab] = useState("preview");
@@ -44,7 +69,7 @@ export default function PreviewPane({ html, css, javascript, onClose }: PreviewP
   `;
 
   return (
-    <div className="relative">
+    <div className=" relative">
       <div className="absolute right-0 top-0 z-10 flex gap-2">
         <Button 
           variant="ghost" 
@@ -64,7 +89,7 @@ export default function PreviewPane({ html, css, javascript, onClose }: PreviewP
         </Button>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-[600px]">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
         <TabsList>
           <TabsTrigger value="preview">Preview</TabsTrigger>
           <TabsTrigger value="html">HTML</TabsTrigger>
@@ -72,7 +97,7 @@ export default function PreviewPane({ html, css, javascript, onClose }: PreviewP
           {javascript && <TabsTrigger value="js">JavaScript</TabsTrigger>}
         </TabsList>
 
-        <TabsContent value="preview" className="h-full">
+        <TabsContent value="preview" className="h-full h-[600px] min-h-75vh]">
           <div className="border rounded-lg h-full overflow-auto">
             <iframe
               srcDoc={completeHtml}
@@ -98,24 +123,18 @@ export default function PreviewPane({ html, css, javascript, onClose }: PreviewP
         </TabsContent>
 
         <TabsContent value="html" className="h-full">
-          <pre className="h-full overflow-auto bg-muted p-4 rounded-lg">
-            <code>{html}</code>
-          </pre>
+          {renderCode(html, 'html')}
         </TabsContent>
 
         {css && (
           <TabsContent value="css" className="h-full">
-            <pre className="h-full overflow-auto bg-muted p-4 rounded-lg">
-              <code>{css}</code>
-            </pre>
+            {renderCode(css, 'css')}
           </TabsContent>
         )}
 
         {javascript && (
           <TabsContent value="js" className="h-full">
-            <pre className="h-full overflow-auto bg-muted p-4 rounded-lg">
-              <code>{javascript}</code>
-            </pre>
+            {renderCode(javascript, 'javascript')}
           </TabsContent>
         )}
       </Tabs>

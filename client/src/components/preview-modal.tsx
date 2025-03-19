@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { X, Maximize2, Minimize2 } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
+import { Highlight, themes } from "prism-react-renderer";
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -36,13 +37,37 @@ export default function PreviewModal({ isOpen, onClose, html, css, javascript }:
     </html>
   `;
 
+  const renderCode = (code: string | null, language: string) => {
+    if (!code) return null;
+    return (
+      <Highlight theme={themes.github} code={code} language={language}>
+        {({ className, style, tokens, getLineProps, getTokenProps }) => (
+          <pre className="h-full overflow-auto p-4 rounded-lg mx-4" style={style}>
+            {tokens.map((line, i) => (
+              <div key={i} {...getLineProps({ line })} className="table-row">
+                <span className="table-cell text-right pr-4 text-gray-500 select-none w-[3rem]">
+                  {i + 1}
+                </span>
+                <span className="table-cell">
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token })} />
+                  ))}
+                </span>
+              </div>
+            ))}
+          </pre>
+        )}
+      </Highlight>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
           className={cn(
-            "fixed left-[50%] top-[50%] z-50 flex items-start w-[80vw] translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-0 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] flex items-start  justify-center w-full flex-col overflow-auto rounded-lg",
+            "fixed left-[50%] top-[50%] z-50 flex items-start w-[80vw] translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-0 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] flex items-start justify-center w-full flex-col overflow-hidden rounded-lg",
             isFullscreen ? "h-[90vh] max-w-none" : "h-[80vh] max-w-4xl"
           )}
         >
@@ -94,24 +119,18 @@ export default function PreviewModal({ isOpen, onClose, html, css, javascript }:
               </TabsContent>
 
               <TabsContent value="html" className="h-[calc(100%-40px)]">
-                <pre className="h-full overflow-auto bg-muted p-4 rounded-lg mx-4">
-                  <code>{html}</code>
-                </pre>
+                {renderCode(html, 'html')}
               </TabsContent>
 
               {css && (
                 <TabsContent value="css" className="h-[calc(100%-40px)]">
-                  <pre className="h-full overflow-auto bg-muted p-4 rounded-lg mx-4">
-                    <code>{css}</code>
-                  </pre>
+                  {renderCode(css, 'css')}
                 </TabsContent>
               )}
 
               {javascript && (
                 <TabsContent value="js" className="h-[calc(100%-40px)]">
-                  <pre className="h-full overflow-auto bg-muted p-4 rounded-lg mx-4">
-                    <code>{javascript}</code>
-                  </pre>
+                  {renderCode(javascript, 'javascript')}
                 </TabsContent>
               )}
             </Tabs>

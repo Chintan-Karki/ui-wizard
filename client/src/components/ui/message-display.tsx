@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Highlight, themes } from "prism-react-renderer";
 
 // Define the Message interface
 interface Message {
@@ -134,21 +135,15 @@ const MessageDisplay = ({ message }: MessageDisplayProps) => {
         </TabsList>
         
         <TabsContent value="html" className="mt-4">
-          <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-96">
-            <code>{codeContent.html}</code>
-          </pre>
+          {renderCode(codeContent.html, 'html')}
         </TabsContent>
         
         <TabsContent value="css" className="mt-4">
-          <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-96">
-            <code>{codeContent.css}</code>
-          </pre>
+          {renderCode(codeContent.css, 'css')}
         </TabsContent>
         
         <TabsContent value="javascript" className="mt-4">
-          <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-96">
-            <code>{codeContent.javascript}</code>
-          </pre>
+          {renderCode(codeContent.javascript, 'javascript')}
         </TabsContent>
       </Tabs>
     </div>
@@ -163,6 +158,30 @@ const escapeHtml = (unsafe: string): string => {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+};
+
+const renderCode = (code: string, language: string) => {
+  if (!code) return null;
+  return (
+    <Highlight theme={themes.github} code={code} language={language}>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <pre className="h-full overflow-auto p-4 rounded-lg bg-gray-100" style={style}>
+          {tokens.map((line, i) => (
+            <div key={i} {...getLineProps({ line })} className="table-row">
+              <span className="table-cell text-right pr-4 text-gray-500 select-none w-[3rem]">
+                {i + 1}
+              </span>
+              <span className="table-cell">
+                {line.map((token, key) => (
+                  <span key={key} {...getTokenProps({ token })} />
+                ))}
+              </span>
+            </div>
+          ))}
+        </pre>
+      )}
+    </Highlight>
+  );
 };
 
 export default MessageDisplay;
