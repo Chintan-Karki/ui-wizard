@@ -1,10 +1,8 @@
-import OpenAI from "openai";
+import 'dotenv/config';
+import { storage } from './storage';
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || "default-key"
-});
-
+const LLM_URL = process.env.VITE_LLM_URL; // OPENAI ENDPOINT
+const token = process.env.VITE_OPENAI_API_KEY; // OPENAI API KEY
 const systemPrompt = `You are an expert UI developer that converts natural language descriptions into clean, semantic HTML/CSS/JS. Output only valid, well-structured code that follows best practices. Return responses in JSON format with html, css (optional), and javascript (optional) fields.
 
 For HTML:
@@ -22,27 +20,59 @@ For JavaScript:
 - Focus on functionality
 - Keep code clean and minimal
 
-Example response format:
+Send the response as a stringified JSON object.
+REMEMBER: In the response, do not include any additional text or comments, not even whitespace. Also, Do not wrap response with "\\boxed{}." as well.
+Example response format must be in stringified JSON format, exactly like:
 {
   "html": "<div class='container'>...</div>",
   "css": ".container { ... }",
   "javascript": "document.querySelector('.container')..."
-}`;
+}
+
+`;
 
 export async function generateUI(prompt: string) {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
-    });
+  if (!LLM_URL) {
+    throw new Error("LLM_URL is not defined");
+  }
+  
+  // Get previous messages to provide context
+  const previousMessages = await storage.getMessages();
+  
+  // Format messages for the API
+  const messageHistory = previousMessages.map(msg => ({
+    role: msg.role,
+    content: msg.content
+  }));
+  
+  // Add the current prompt
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...messageHistory,
+    { role: 'user', content: prompt }
+  ];
+  console.debug("🚀 🔥 ⚒️ : ~ generatedUI ~ messages:", messages);
 
-    const result = JSON.parse(response.choices[0].message.content);
-    return result;
-  } catch (error) {
-    throw new Error(`Failed to generate UI: ${error.message}`);
+  try {
+    const response = await fetch(LLM_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'HTTP-Referer': process.env.VITE_SITE_URL || '',
+        'X-Title': process.env.VITE_SITE_NAME || 'UI Builder',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: process.env.VITE_LLM_MODEL,
+        messages: messages,
+        response_format: { type: 'json_object' }
+      })
+    });
+    const data = await response.json();
+    const content = data.choices[0].message.content || data.choices[0].message[0].content;
+    return content;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to generate UI: ${errorMessage}`);
   }
 }
