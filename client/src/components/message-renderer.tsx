@@ -64,10 +64,6 @@ export function MessageRenderer({ message, onSelectHtml }: MessageRendererProps)
             </Tooltip>
           </div>
           <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
-            {/* <code>{generated.html}</code> */}
-            
-            {/* <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: generated.html }} /> */}
-
             <MessageDisplay message={message} />
           </pre>
         </div>
